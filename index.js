@@ -164,8 +164,39 @@ app.post('/displaymyblogs', async(req, res) => {
 
 
 
-// getting last blog in /home ....
+// getting last blog in /allblogs ....
+// app.post('/homes', async(req, res) => {
+
+
+//     let usn = req.body.mins;
+//     const results = await abc.find({}).sort({  });
+//     const response = results.map((doc) => {
+//         return {
+//             username: doc.username,
+//             lastBlog: doc.blogs[doc.blogs.length - 1]
+//         };
+//     });
+
+//     res.json(response);
+// });
+// app.post('/homes', async(req, res) => {
+//     let usn = req.body.mins;
+//     const results = await abc.find({});
+//     const response = results.map((doc) => {
+//         return {
+//             username: doc.username,
+//             lastBlog: doc.blogs[doc.blogs.length - 1]
+//         };
+//     });
+
+//     response.sort(() => Math.random() - 0.5); // sort randomly
+
+//     res.json(response);
+// });
+
+
 app.post('/homes', async(req, res) => {
+    let usn = req.body.mins;
     const results = await abc.find({}).sort({ updatedAt: -1 });
     const response = results.map((doc) => {
         return {
@@ -174,27 +205,33 @@ app.post('/homes', async(req, res) => {
         };
     });
 
+    // Shuffle the response array randomly
+    for (let i = response.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [response[i], response[j]] = [response[j], response[i]];
+    }
+
     res.json(response);
 });
 
 
 
 
+
+//post all blogs
 app.post('/getRecentblog', async(req, res) => {
-    try {
-        const results = await abc.find({}).sort({ updatedAt: -1 }); // sort by updated time 
 
-        const response = results.map((doc) => {
-            return {
-                username: doc.username,
-                blogs: doc.blogs
-            };
-        });
+    const results = await abc.find({}).sort({ updatedAt: -1 }); // sort by updated time 
 
-        res.status(200).json(response);
-    } catch (error) {
-        res.status(500).json({ message: "Internal server error" });
-    }
+    const response = results.map((doc) => {
+        return {
+            username: doc.username,
+            blogs: doc.blogs.reverse()
+        };
+    });
+
+    res.status(200).json(response);
+
 });
 
 
@@ -223,6 +260,58 @@ app.post('/deleterecentblog', async(req, res) => {
 
 
 
+//delete particular
+
+app.post('/deletenumber', async(req, res) => {
+
+    const { min, index } = req.body;
+
+    const user = await abc.findOne({ username: min });
+    const blogIndex = parseInt(index);
+    user.blogs.splice(blogIndex, 1); // delete the blog post at the specified index
+    await user.save();
+    res.json(user.blogs);
+
+});
+
+//search 
+
+
+
+// app.post('/searchs', async(req, res) => {
+
+//     let a = req.body.username
+//     const user = await abc.findOne({ username: a });
+//     res.json(user);
+//     console.log(user);
+
+// });
+
+
+app.post('/searchs', async(req, res) => {
+    const username = req.body.username;
+    const user = await abc.findOne({ username });
+
+    if (user) {
+        res.json({ blogs: user.blogs.reverse() });
+    } else {
+        res.json({ blogs: [] });
+    }
+});
+
+app.post('/autocomplete', async(req, res) => {
+    const query = req.body.query;
+    const usernames = await abc.distinct('username', { username: { $regex: query, $options: 'i' } });
+    res.json({ usernames });
+});
+
+
+
+
+
+
+
+
 
 if (process.env.API_Port) {
 
@@ -232,6 +321,11 @@ if (process.env.API_Port) {
 
 
 }
+
+
+
+
+
 
 
 
