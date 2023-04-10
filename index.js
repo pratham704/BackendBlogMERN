@@ -155,6 +155,23 @@ app.post('/displaymyblogs', async(req, res) => {
 
 });
 
+//while editing if less than 10 
+
+app.post('/dis', async(req, res) => {
+
+    const existing = await abc.findOne({ username: req.body.fromlocalstorage })
+
+    if (existing != null) {
+        res.json(existing.blogs)
+    } else {
+
+
+        res.json("nothins brp")
+
+
+    }
+
+});
 
 
 
@@ -306,8 +323,52 @@ app.post('/autocomplete', async(req, res) => {
 });
 
 
+//fill when editing
+
+app.post('/filltext', async(req, res) => {
+
+        let usn = req.body.fromlocalstorage;
+        let blogindex = req.body.index;
+
+        const foundDoc = await abc.findOne({ username: usn })
+
+        const blogData = foundDoc.blogs[blogindex];
+
+        return res.json(blogData);
 
 
+
+    }
+
+)
+
+// edit and save
+
+app.post('/savechanges', async(req, res) => {
+
+        let usn = req.body.fromlocalstorage;
+        let blogindex = req.body.index;
+        let cont = req.body.cont;
+
+        const foundDoc = await abc.findOne({ username: usn })
+
+        // Replace blog at specified index with new content
+        foundDoc.blogs[blogindex] = cont;
+
+        // Save updated document to database
+        await foundDoc.save();
+
+        const existing = await abc.findOne({ username: usn })
+
+
+        res.json(existing.blogs)
+
+
+
+
+    }
+
+)
 
 
 
