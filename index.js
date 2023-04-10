@@ -117,7 +117,7 @@ app.post('/existingEmail', async(req, res) => {
 
 app.post('/myblog', async(req, res) => {
 
-    let a = req.body.min
+    let a = req.body.fromlocalstorage
     let b = req.body.inputText
 
 
@@ -141,7 +141,7 @@ app.post('/myblog', async(req, res) => {
 
 app.post('/displaymyblogs', async(req, res) => {
 
-    const existing = await abc.findOne({ username: req.body.min })
+    const existing = await abc.findOne({ username: req.body.fromlocalstorage })
 
     if (existing != null) {
         res.json(existing.blogs)
@@ -240,13 +240,13 @@ app.post('/getRecentblog', async(req, res) => {
 //remove my recent blog in myblogs
 app.post('/deleterecentblog', async(req, res) => {
 
-    const existing = await abc.findOne({ username: req.body.min }, null, { timestamps: false });
+    const existing = await abc.findOne({ username: req.body.fromlocalstorage }, null, { timestamps: false });
 
     if (existing) {
 
 
         existing.blogs.pop();
-        await abc.updateOne({ username: req.body.min }, { timestamps: false });
+        await abc.updateOne({ username: req.body.fromlocalstorage }, { timestamps: false });
         await existing.save();
         res.json(existing.blogs);
 
@@ -264,13 +264,13 @@ app.post('/deleterecentblog', async(req, res) => {
 
 app.post('/deletenumber', async(req, res) => {
 
-    const { min, index } = req.body;
+    const { fromlocalstorage, index } = req.body;
 
-    const user = await abc.findOne({ username: min });
+    const use = await abc.findOne({ username: fromlocalstorage });
     const blogIndex = parseInt(index);
-    user.blogs.splice(blogIndex, 1); // delete the blog post at the specified index
-    await user.save();
-    res.json(user.blogs);
+    use.blogs.splice(blogIndex, 1); // delete the blog post at the specified index
+    await use.save();
+    res.json(use.blogs);
 
 });
 
